@@ -58,8 +58,7 @@ export default function Test() {
         const formData: [] = $('.build-wrap').formBuilder('getData')
         let HTML: string = "", doc: string = ""
         console.log(document.querySelector(".drop").innerHTML)
-        formData.map((element: any) => {
-            // console.log(element)
+        formData.map((element: any) => { 
             switch (element.type) {
                 case "autocomplete": {
                     HTML += `<div>
@@ -112,9 +111,9 @@ export default function Test() {
                 }
                 case "file": {
                     HTML += `<div class="mb-3">
-                    <label for="formFile" class="form-label">${element.name}</label>
-                    <input name="${element.name}" ${element.mutiple && 'multiple="multiple"'} class="form-control"
-                    ${element.required && 'required'} type="file" id="formFile">
+                        <label for="formFile" class="form-label">${element.name}</label>
+                        <input name="${element.name}" ${element.mutiple && 'multiple="multiple"'} class="form-control"
+                        ${element.required && 'required'} type="file" id="formFile">
                   </div>`
                     break;
                 }
@@ -123,10 +122,10 @@ export default function Test() {
                     <div class="form-outline">
                         <label class="form-label" for="typeNumber">${element.name}</label>
                         <input type="number" class="form-control" name="${element.name}" 
-                        value=${element?.value ? element.value : ""}
-                        min=${element?.min ? element.min : ""} 
-                        max=${element?.max ? element.max : ""}
-                        step=${element?.step ? element.step : ""}  
+                        value=${element?.value && element.value}
+                        min=${element?.min && element.min} 
+                        max=${element?.max && element.max}
+                        step=${element?.step && element.step}  
                         id="${element.name}"  
                         placeholder="${element?.placeholder ? element.placeholder : ""}"
                         title="${element?.description ? element.description : ""}"
@@ -202,8 +201,9 @@ export default function Test() {
                 case "button": {
                     HTML += `<div>
                         <label class="form-label">${element.name}</label>
-                        <button type="${element.subtype}" class="btn btn-primary" id="${element.name}" 
-                        >${element?.value || element?.label}</button>
+                        <button type="${element.subtype}" class="btn btn-primary" id="${element.name}">
+                            ${element?.value || element?.label}
+                        </button>
                     </div>`
                     break;
                 }
