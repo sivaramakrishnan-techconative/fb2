@@ -56,18 +56,20 @@ export default function Test() {
     }
     function renderEdit() {
         const formData: [] = $('.build-wrap').formBuilder('getData')
-        let HTML: string = "", code: string = "";
-        console.log(document.querySelector(".drop").innerHTML)
+        let HTML: string = "", script: string = "", doc: string = "", data: string = "", code: string = "";
         formData.map((element: any) => {
-            // console.log(element)
             switch (element.type) {
                 case "autocomplete": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} = document.getElementById("${id}").value;`;
+                    data += `${id}: ${id},`
                     HTML += `<div>
-                        <label for="Autocomplete" class="form-label">${element.name}</label>
+                        <label for="Autocomplete" class="form-label">${id}</label>
                         <input 
-                        name="${element.name}"
+                        name="${id}"
                         list="datalistOptions"
-                        id="${element.name}"     
+                        id="${id}"     
                         placeholder="${element?.placeholder ? element.placeholder : ""}"
                         title="${element?.description ? element.description : ""}"
                         ${element.required ? 'required' : ""} 
@@ -79,29 +81,38 @@ export default function Test() {
                     break;
                 }
                 case "checkbox-group": {
-                    HTML += `<div>
-                    <label class="form-label">${element.name}</label>
-                    <div class="input-group mb-3">
-                    <div class="form-check">
-                    ${element.values.map((data) => {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} =""
+                    var ele = document.querySelectorAll(".form-checkbox-input");
+                    for (i = 0; i < ele.length; i++) {
+                        if (ele[i].checked)
+                             ${id} += ele[i].value +",";
+                    } `;
+                    data += `${id}:${id}, `
+                    HTML += `<label class="form-label">${id}</label>                     
+                    ${element.values.map((data, index: number) => { 
                         return `
-                        <input name="${element.name}" class="form-check-input" type="checkbox" value="${data.value}" id="${data.label}"  ${data.selected && 'checked'}>
-                        <label class="form-check-label" >
-                            ${data.label}
-                        </label>`})}        
-                    </div>              
-                  </div>
-                  </div>`
+                        <div class="form-check">
+                            <input name="${id}_${index}" class="form-checkbox-input" type="checkbox" value="${data.value}" id="${id}_${index}"  ${data.selected && 'checked'}>
+                            <label class="form-check-label" for="flexCheckChecked">
+                                ${data.label}
+                            </label>
+                        </div>`})}`
                     break;
                 }
                 case "date": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} = document.getElementById("${id}").value;`;
+                    data += `${id}: ${id},`
                     HTML += `<div>
-                        <label for="Date" class="form-label">${element.name}</label>
+                        <label for="Date" class="form-label">${id}</label>
                         <input 
                         type="date"
                         class="form-control"
-                        name="${element.name}"
-                        id="${element.name}"  
+                        name="${id}"
+                        id="${id}"  
                         ${element?.value ? `value =${element?.value}` : ""}   
                         placeholder="${element?.placeholder ? element.placeholder : ""}"
                         title="${element?.description ? element.description : ""}"
@@ -111,23 +122,29 @@ export default function Test() {
                     break;
                 }
                 case "file": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
                     HTML += `<div class="mb-3">
-                    <label for="formFile" class="form-label">${element.name}</label>
-                    <input name="${element.name}" ${element.mutiple && 'multiple="multiple"'} class="form-control"
+                    <label for="formFile" class="form-label">${id}</label>
+                    <input name="${id}" ${element.mutiple && 'multiple="multiple"'} class="form-control"
                     ${element.required && 'required'} type="file" id="formFile">
                   </div>`
                     break;
                 }
                 case "number": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} = document.getElementById("${id}").value;`;
+                    data += `${id}: ${id},`
                     HTML += `
                     <div class="form-outline">
-                        <label class="form-label" for="typeNumber">${element.name}</label>
-                        <input type="number" class="form-control" name="${element.name}" 
-                        value=${element?.value ? element.value : ""}
-                        min=${element?.min ? element.min : ""} 
-                        max=${element?.max ? element.max : ""}
-                        step=${element?.step ? element.step : ""}  
-                        id="${element.name}"  
+                        <label class="form-label" for="typeNumber">${id}</label>
+                        <input type="number" class="form-control" name="${id}" 
+                        value=${element?.value && element.value}
+                        min=${element?.min && element.min} 
+                        max=${element?.max && element.max}
+                        step=${element?.step && element.step}  
+                        id="${id}"  
                         placeholder="${element?.placeholder ? element.placeholder : ""}"
                         title="${element?.description ? element.description : ""}"
                         ${element.required ? 'required' : ""} >
@@ -140,76 +157,160 @@ export default function Test() {
                     break;
                 }
                 case "hidden": {
-                    HTML += `<input type="hidden" name="${element.name}" value="${element.value}" id="${element.name}">`
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    HTML += `<input type="hidden" name="${id}" value="${element.value}" id="${id}">`
                     break;
                 }
                 case "radio-group": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} =""
+                    var ele = document.getElementsByName("${id}")
+                    for (i = 0; i < ele.length; i++) {
+                        if (ele[i].checked)
+                             ${id} = ele[i].value;
+                    } `;
+                    data += `${id}:${id}, `
                     HTML += `<div>
-                        <label class="form-label">${element.name}</label>
+                        <label class="form-label">${id}</label>
                         ${element.values.map((data) => {
                         return `  <div class="form-check">
-                            <input class="form-check-input" type="radio" name="${element.name}" value="${data.value}"
-                                id="${data.label}"  ${data.selected && 'checked'}>
+                            <input class="form-check-input" type="radio" name="${id}" value="${data.value}"
+                                id="${id}"  ${data.selected && 'checked'}>
                             <label class="form-check-label" >
                                 ${data.label}
                             </label>
-                            </div>`})}
-                        </div>`
+                            </div>`})
+                        }
+                        </div> `
                     HTML += element?.other ? `<div class="form-check">
-                            <input class="form-check-input" type="radio" name="${element.name}"
-                                id="${element.label}" >
+                        <input class="form-check-input" type="radio" name="${id}"
+                            id="${id}" >
                             <label class="form-check-label" >
                                 ${element.label}
                                 <input type="text" id="${element.label}-other" >
                             </label>
-                            </div>` : ""
+                        </div>` : ""
                     break;
                 }
                 case "select": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} = document.getElementById("${id}").value; `;
+                    data += `${id}: ${id}, `
                     HTML += `<div>
-                        <label class="form-label">${element.name}</label>
+                        <label class="form-label">${id}</label>
                         <select
-                        name="${element.name}"
+                        id="${id}"
+                        name="${id}"
                         class="form-select"  
                         placeholder="${element?.placeholder ? element.placeholder : ""}"
-                        title="${element?.description ? element.description : ""}"
+                    title = "${element?.description ? element.description : ""}"
                         ${element.required ? 'required' : ""}>
                         ${element.values.map((data) => {
                         return `<option value="${data.value}">${data.label}</option>`
-                    })}
+                    })
+                        }
                         </select>
-                    </div>`
+                    </div> `
                     break;
                 }
                 case "text":
                 case "textarea": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} = document.getElementById("${id}").value; `;
+                    data += `${id}: ${id}, `
                     HTML += `<div>
-                        <label class="form-label">${element.name}</label>
+                        <label class="form-label">${id}</label>
                         <input 
-                        name="${element.name}"
+                        name="${id}"
                         type=${element.type}
                         class="form-control"
-                        id="${element.name}"    
+                        id="${id}"    
                         value="${element?.value ? element.value : ""}"
-                        placeholder="${element?.placeholder ? element.placeholder : ""}"
-                        title="${element?.description ? element.description : ""}"
+                    placeholder = "${element?.placeholder ? element.placeholder : ""}"
+                    title = "${element?.description ? element.description : ""}"
                         ${element.required ? 'required' : ""} 
                         ${element?.maxlength ? `maxLength=${element?.maxlength}` : ""}
-                        />
-                    </div>`
+                    />
+                    </div> `
                     break;
                 }
                 case "button": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
                     HTML += `<div>
-                        <label class="form-label">${element.name}</label>
-                        <button type="${element.subtype}" class="btn btn-primary" id="${element.name}" 
+                        <label class="form-label">${id}</label>
+                        <button type="${element.subtype}" class="btn btn-primary" id="${id}" 
                         >${element?.value || element?.label}</button>
-                    </div>`
+                    </div> `
                     break;
                 }
             }
         })
-        console.log(HTML)
+        HTML = HTML.replace(/,/g, '')
+        script = `var form = document.getElementById("my-form");
+                    async function handleSubmit(event) {
+                        debugger
+                        event.preventDefault(); 
+                        var status = document.getElementById("my-form-status");
+                        ${code}
+                        var data = JSON.stringify({
+                            ${data}
+                        });
+                        fetch(event.target.action, {
+                            method: form.method,
+                            body: data,
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        })
+                        .then((response) => {
+                            if (response.ok) {
+                                status.innerHTML = "Thanks for your submission!";
+                                form.reset();
+                            } else {
+                                response.json().then((data) => {
+                                    if (Object.hasOwn(data, "errors")) {
+                                        status.innerHTML = data["errors"]
+                                            .map((error) => error["message"])
+                                            .join(", ");
+                                    } else {
+                                        status.innerHTML = "Oops! Something went wrong";
+                                    }
+                                });
+                            }
+                        })
+                        .catch((error) => {
+                            status.innerHTML = "Oops! Something went wrong";
+                        });
+    }
+    form.addEventListener("submit", handleSubmit); `
+        doc = `<!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>FormHouse Form</title>
+                            <link
+                                rel="stylesheet"
+                                href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
+                            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
+                        </head>
+                        <body>
+                            <p id="my-form-status"></p>
+                            <form id="my-form" action="https://data.formhouse.pro/36rKEtcDFRtv0ZhwnONnFK" method="post">
+                                ${HTML}
+                            </form>
+                            <script>
+                                ${script}
+                            </script>
+                        </body>
+                    </html>`
+        console.log(doc)
     }
     return (
         <>
