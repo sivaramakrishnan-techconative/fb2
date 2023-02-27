@@ -199,7 +199,7 @@ export default function Test() {
                     </div>`
                     break;
                 }
-                case "button": { 
+                case "button": {
                     HTML += `<div>
                         <label class="form-label">${element.name}</label>
                         <button type="${element.subtype}" class="btn btn-primary" id="${element.name}" 
