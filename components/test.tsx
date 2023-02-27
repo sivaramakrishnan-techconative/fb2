@@ -86,12 +86,17 @@ export default function Test() {
                     code += `var ${id} =""
                     var ele = document.querySelectorAll(".form-checkbox-input");
                     for (i = 0; i < ele.length; i++) {
-                        if (ele[i].checked)
-                             ${id} += ele[i].value +",";
+                        if (ele[i].checked){
+                            ${id} += ele[i].value +","; 
+                            if (ele[i].value === "on" && i === ele.length - 1) { 
+                                ${id} = ${id}.replace(/on,/g, "")
+                                ${id} += document.getElementById("${id}_other").value;
+                            }
+                        }                            
                     } `;
                     data += `${id}:${id}, `
                     HTML += `<label class="form-label">${id}</label>                     
-                    ${element.values.map((data, index: number) => { 
+                    ${element.values.map((data, index: number) => {
                         return `
                         <div class="form-check">
                             <input name="${id}_${index}" class="form-checkbox-input" type="checkbox" value="${data.value}" id="${id}_${index}"  ${data.selected && 'checked'}>
@@ -99,6 +104,13 @@ export default function Test() {
                                 ${data.label}
                             </label>
                         </div>`})}`
+                    HTML += element?.other ? `<div class="form-check">
+                        <input class="form-checkbox-input" type="checkbox" name="${id}" id="${id}">
+                            <label class="form-check-label">
+                                 Other
+                                <input type="text" id="${id}_other" >
+                            </label>
+                        </div>` : ""
                     break;
                 }
                 case "date": {
@@ -169,27 +181,30 @@ export default function Test() {
                     var ele = document.getElementsByName("${id}")
                     for (i = 0; i < ele.length; i++) {
                         if (ele[i].checked)
-                             ${id} = ele[i].value;
+                        {
+                            ${id} = ele[i].value;
+                            if (ele[i].value === "on" && i === ele.length - 1) { 
+                                ${id} = document.getElementById("${id}_other").value;
+                            }
+                        }
                     } `;
                     data += `${id}:${id}, `
                     HTML += `<div>
                         <label class="form-label">${id}</label>
                         ${element.values.map((data) => {
-                        return `  <div class="form-check">
+                        return `<div class="form-check">
                             <input class="form-check-input" type="radio" name="${id}" value="${data.value}"
                                 id="${id}"  ${data.selected && 'checked'}>
                             <label class="form-check-label" >
                                 ${data.label}
                             </label>
-                            </div>`})
-                        }
+                            </div>`})}
                         </div> `
                     HTML += element?.other ? `<div class="form-check">
-                        <input class="form-check-input" type="radio" name="${id}"
-                            id="${id}" >
-                            <label class="form-check-label" >
-                                ${element.label}
-                                <input type="text" id="${element.label}-other" >
+                        <input class="form-check-input" type="radio" name="${id}" id="${id}">
+                            <label class="form-check-label">
+                                 Other
+                                <input type="text" id="${id}_other" >
                             </label>
                         </div>` : ""
                     break;
