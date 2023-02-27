@@ -57,54 +57,63 @@ export default function Test() {
     function renderEdit() {
         const formData: [] = $('.build-wrap').formBuilder('getData')
         let HTML: string = "", code: string = "";
+        console.log(document.querySelector(".drop").innerHTML)
         formData.map((element: any) => {
-            console.log(element)
+            // console.log(element)
             switch (element.type) {
                 case "autocomplete": {
-                    HTML += ` <label for="Autocomplete" class="form-label">${element.name}</label>
-                    <input 
-                      list="datalistOptions"
-                      id="${element.name}"     
-                      placeholder="${element?.placeholder ? element.placeholder : ""}"
-                      title="${element?.description ? element.description : ""}"
-                      ${element.required ? 'required' : ""} 
-                    />
-                    <datalist id="datalistOptions">
-                        ${element.values.map((data) => { return `<option value="${data.value}">${data.label}</option>` })}
-                    </datalist>`
+                    HTML += `<div>
+                        <label for="Autocomplete" class="form-label">${element.name}</label>
+                        <input 
+                        name="${element.name}"
+                        list="datalistOptions"
+                        id="${element.name}"     
+                        placeholder="${element?.placeholder ? element.placeholder : ""}"
+                        title="${element?.description ? element.description : ""}"
+                        ${element.required ? 'required' : ""} 
+                        />
+                        <datalist id="datalistOptions">
+                            ${element.values.map((data) => { return `<option value="${data.value}">${data.label}</option>` })}
+                        </datalist>
+                    </div>`
                     break;
                 }
                 case "checkbox-group": {
-                    HTML += ` <label class="form-label">${element.name}</label>
+                    HTML += `<div>
+                    <label class="form-label">${element.name}</label>
                     <div class="input-group mb-3">
                     <div class="form-check">
                     ${element.values.map((data) => {
                         return `
-                        <input class="form-check-input" type="checkbox" value="${data.value}" id="${data.label}"  ${data.selected && 'checked'}>
+                        <input name="${element.name}" class="form-check-input" type="checkbox" value="${data.value}" id="${data.label}"  ${data.selected && 'checked'}>
                         <label class="form-check-label" >
                             ${data.label}
-                        </label>`})}      
+                        </label>`})}        
                     </div>              
+                  </div>
                   </div>`
                     break;
                 }
                 case "date": {
-                    HTML += ` <label for="Date" class="form-label">${element.name}</label>
-                    <input 
-                      type="date"
-                      class="form-control"
-                      id="${element.name}"    
-                      value="${element?.value}"
-                      placeholder="${element?.placeholder ? element.placeholder : ""}"
-                      title="${element?.description ? element.description : ""}"
-                      ${element.required ? 'required' : ""} 
-                    />`
+                    HTML += `<div>
+                        <label for="Date" class="form-label">${element.name}</label>
+                        <input 
+                        type="date"
+                        class="form-control"
+                        name="${element.name}"
+                        id="${element.name}"  
+                        ${element?.value ? `value =${element?.value}` : ""}   
+                        placeholder="${element?.placeholder ? element.placeholder : ""}"
+                        title="${element?.description ? element.description : ""}"
+                        ${element.required ? 'required' : ""} 
+                        />
+                    </div>`
                     break;
                 }
                 case "file": {
                     HTML += `<div class="mb-3">
                     <label for="formFile" class="form-label">${element.name}</label>
-                    <input ${element.mutiple && 'multiple="multiple"'} class="form-control"
+                    <input name="${element.name}" ${element.mutiple && 'multiple="multiple"'} class="form-control"
                     ${element.required && 'required'} type="file" id="formFile">
                   </div>`
                     break;
@@ -112,12 +121,16 @@ export default function Test() {
                 case "number": {
                     HTML += `
                     <div class="form-outline">
-                    <label class="form-label" for="typeNumber">${element.name}</label>
-                    <input type="number" class="form-control" name="${element.name}" 
-                    value=${element?.value} min=${element?.min} max=${element?.max} step=${element?.step}  
-                    id="${element.name}"  placeholder="${element?.placeholder ? element.placeholder : ""}"
-                    title="${element?.description ? element.description : ""}"
-                    ${element.required ? 'required' : ""} >
+                        <label class="form-label" for="typeNumber">${element.name}</label>
+                        <input type="number" class="form-control" name="${element.name}" 
+                        value=${element?.value ? element.value : ""}
+                        min=${element?.min ? element.min : ""} 
+                        max=${element?.max ? element.max : ""}
+                        step=${element?.step ? element.step : ""}  
+                        id="${element.name}"  
+                        placeholder="${element?.placeholder ? element.placeholder : ""}"
+                        title="${element?.description ? element.description : ""}"
+                        ${element.required ? 'required' : ""} >
                     </div>`
                     break;
                 }
@@ -131,15 +144,17 @@ export default function Test() {
                     break;
                 }
                 case "radio-group": {
-                    HTML += ` <label class="form-label">${element.name}</label>
-                    ${element.values.map((data) => {
+                    HTML += `<div>
+                        <label class="form-label">${element.name}</label>
+                        ${element.values.map((data) => {
                         return `  <div class="form-check">
-                        <input class="form-check-input" type="radio" name="${element.name}" value="${data.value}"
-                            id="${data.label}"  ${data.selected && 'checked'}>
-                        <label class="form-check-label" >
-                            ${data.label}
-                        </label>
-                        </div>`})}`
+                            <input class="form-check-input" type="radio" name="${element.name}" value="${data.value}"
+                                id="${data.label}"  ${data.selected && 'checked'}>
+                            <label class="form-check-label" >
+                                ${data.label}
+                            </label>
+                            </div>`})}
+                        </div>`
                     HTML += element?.other ? `<div class="form-check">
                             <input class="form-check-input" type="radio" name="${element.name}"
                                 id="${element.label}" >
@@ -151,30 +166,45 @@ export default function Test() {
                     break;
                 }
                 case "select": {
-                    HTML += `<label class="form-label">${element.name}</label>
-                    <select class="form-select"  
-                    placeholder="${element?.placeholder ? element.placeholder : ""}"
-                    title="${element?.description ? element.description : ""}"
-                    ${element.required ? 'required' : ""} 
-                    ${element.values.map((data) => {
+                    HTML += `<div>
+                        <label class="form-label">${element.name}</label>
+                        <select
+                        name="${element.name}"
+                        class="form-select"  
+                        placeholder="${element?.placeholder ? element.placeholder : ""}"
+                        title="${element?.description ? element.description : ""}"
+                        ${element.required ? 'required' : ""}>
+                        ${element.values.map((data) => {
                         return `<option value="${data.value}">${data.label}</option>`
                     })}
-                    </select>`
+                        </select>
+                    </div>`
                     break;
                 }
                 case "text":
                 case "textarea": {
-                    HTML += ` <label class="form-label">${element.name}</label>
-                    <input 
-                    type=${element.type}
-                    class="form-control"
-                    id="${element.name}"    
-                    value="${element?.value ? element.value : ""}"
-                    placeholder="${element?.placeholder ? element.placeholder : ""}"
-                    title="${element?.description ? element.description : ""}"
-                    ${element.required ? 'required' : ""} 
-                    ${element?.maxlength ? `maxLength=${element?.maxlength}` : ""}
-                    />`
+                    HTML += `<div>
+                        <label class="form-label">${element.name}</label>
+                        <input 
+                        name="${element.name}"
+                        type=${element.type}
+                        class="form-control"
+                        id="${element.name}"    
+                        value="${element?.value ? element.value : ""}"
+                        placeholder="${element?.placeholder ? element.placeholder : ""}"
+                        title="${element?.description ? element.description : ""}"
+                        ${element.required ? 'required' : ""} 
+                        ${element?.maxlength ? `maxLength=${element?.maxlength}` : ""}
+                        />
+                    </div>`
+                    break;
+                }
+                case "button": { 
+                    HTML += `<div>
+                        <label class="form-label">${element.name}</label>
+                        <button type="${element.subtype}" class="btn btn-primary" id="${element.name}" 
+                        >${element?.value || element?.label}</button>
+                    </div>`
                     break;
                 }
             }
