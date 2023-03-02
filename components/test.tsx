@@ -98,7 +98,7 @@ export default function Test() {
                     HTML += `<label data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="form-label">${element.label}${element?.required ? '*' : ""}</label>                     
                     ${element.values.map((data, index: number) => {
                         return `
-                        <div class="form-check ${element.toggle ? "form-switch":""} ">
+                        <div class="form-check ${element.toggle ? "form-switch" : ""} ">
                             <input name="${id}_${index}" class="form-check-input form-checkbox-input" type="checkbox" value="${data.value}" id="${id}_${index}"  ${data.selected && 'checked'}>
                             <label class="form-check-label" for="flexCheckChecked">
                                 ${data.label}
@@ -302,11 +302,22 @@ export default function Test() {
                                 href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
                             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
                         </head>
-                        <body>
-                            <p id="my-form-status"></p>
-                            <form id="my-form" action="https://data.formhouse.pro/36rKEtcDFRtv0ZhwnONnFK" method="post">
-                                ${HTML}
-                            </form>
+                        <body> 
+                        <div class="d-flex justify-content-center align-items-center mt-2">
+                            <div class="row w-50">
+                                <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                    <h5 class="card-title">FormHouse Forms</h5>
+                                    <p id="my-form-status"></p>
+                                    <form id="my-form" action="https://data.formhouse.pro/36rKEtcDFRtv0ZhwnONnFK" method="post">
+                                            ${HTML}
+                                    </form>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>                      
                             <script>
                                 ${script}
                             </script>
