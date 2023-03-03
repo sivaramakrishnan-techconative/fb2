@@ -54,23 +54,24 @@ export default function Test() {
             })
         }, 100);
     }
-    function renderEdit() {
+    function getHTMLorAjax(from: string) {
         const formData: [] = $('.build-wrap').formBuilder('getData')
-        let HTML: string = "", code: string = "";
-        console.log(document.querySelector(".drop").innerHTML)
+        let HTML: string = "", script: string = "", doc: string = "", data: string = "", code: string = "";
         formData.map((element: any) => {
-            // console.log(element)
             switch (element.type) {
                 case "autocomplete": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} = document.getElementById("${id}").value;`;
+                    data += `${id}: ${id},`
                     HTML += `<div>
-                        <label for="Autocomplete" class="form-label">${element.name}</label>
+                        <label for="Autocomplete" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         <input 
-                        name="${element.name}"
+                        name="${id}"
                         list="datalistOptions"
-                        id="${element.name}"     
+                        id="${id}"     
                         placeholder="${element?.placeholder ? element.placeholder : ""}"
                         title="${element?.description ? element.description : ""}"
-                        ${element.required ? 'required' : ""} 
                         />
                         <datalist id="datalistOptions">
                             ${element.values.map((data) => { return `<option value="${data.value}">${data.label}</option>` })}
@@ -79,58 +80,88 @@ export default function Test() {
                     break;
                 }
                 case "checkbox-group": {
-                    HTML += `<div>
-                    <label class="form-label">${element.name}</label>
-                    <div class="input-group mb-3">
-                    <div class="form-check">
-                    ${element.values.map((data) => {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} ="" 
+                    var ele = document.querySelectorAll(".form-checkbox-input");
+                    for (i = 0; i < ele.length; i++) {
+                        if (ele[i].checked){
+                            ${id} += ele[i].value +","; 
+                            if (ele[i].value === "on" && i === ele.length - 1) { 
+                                ${id} = ${id}.replace(/on,/g, "")
+                                ${id} += document.getElementById("${id}_other").value;
+                            }
+                        }                            
+                    } `;
+                    data += `${id}:${id}, `
+                    HTML += `<label data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="form-label">${element.label}${element?.required ? '*' : ""}</label>                     
+                    ${element.values.map((data, index: number) => {
                         return `
-                        <input name="${element.name}" class="form-check-input" type="checkbox" value="${data.value}" id="${data.label}"  ${data.selected && 'checked'}>
-                        <label class="form-check-label" >
-                            ${data.label}
-                        </label>`})}        
-                    </div>              
-                  </div>
-                  </div>`
+                        <div class="form-check ${element.toggle ? "form-switch" : ""} ">
+                            <input name="${id}_${index}" class="form-check-input form-checkbox-input" type="checkbox" value="${data.value}" id="${id}_${index}"  ${data.selected && 'checked'}>
+                            <label class="form-check-label" for="flexCheckChecked">
+                                ${data.label}
+                            </label>
+                        </div>`})}`
+                    HTML += element?.other ? `<div data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="form-check">
+                        <input class="form-checkbox-input" type="checkbox" name="${id}" id="${id}">
+                            <label class="form-check-label">
+                                 Other
+                                <input type="text" id="${id}_other" >
+                            </label>
+                        </div>` : ""
                     break;
                 }
                 case "date": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} = document.getElementById("${id}").value;`;
+                    data += `${id}: ${id},`
                     HTML += `<div>
-                        <label for="Date" class="form-label">${element.name}</label>
+                        <label data-toggle="tooltip" title="${element?.description ? element.description : ""}" for="Date" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         <input 
                         type="date"
                         class="form-control"
-                        name="${element.name}"
-                        id="${element.name}"  
-                        ${element?.value ? `value =${element?.value}` : ""}   
-                        placeholder="${element?.placeholder ? element.placeholder : ""}"
-                        title="${element?.description ? element.description : ""}"
-                        ${element.required ? 'required' : ""} 
+                        name="${id}"
+                        id="${id}"  
+                        ${element?.value ? `value =${element?.value}` : ""}    
+                        title="${element?.description ? element.description : ""}" 
                         />
                     </div>`
                     break;
                 }
                 case "file": {
-                    HTML += `<div class="mb-3">
-                    <label for="formFile" class="form-label">${element.name}</label>
-                    <input name="${element.name}" ${element.mutiple && 'multiple="multiple"'} class="form-control"
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} = document.getElementById("${id}");
+                    ${id} = ${id}.files[0]
+                    var ${id}_formdata = new FormData();
+                    formdata.append("${id}",${id})`
+                    data += `${id}: ${id}_formdata,`
+                    HTML += `<div data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="mb-3">
+                    <label for="formFile" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
+                    <input id="${id}" name="${id}" ${element.mutiple && 'multiple="multiple"'} class="form-control"
                     ${element.required && 'required'} type="file" id="formFile">
                   </div>`
                     break;
                 }
                 case "number": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} = document.getElementById("${id}").value;`;
+                    data += `${id}: ${id},`
                     HTML += `
                     <div class="form-outline">
-                        <label class="form-label" for="typeNumber">${element.name}</label>
-                        <input type="number" class="form-control" name="${element.name}" 
-                        value=${element?.value ? element.value : ""}
-                        min=${element?.min ? element.min : ""} 
-                        max=${element?.max ? element.max : ""}
-                        step=${element?.step ? element.step : ""}  
-                        id="${element.name}"  
+                        <label class="form-label" for="typeNumber">${element.label}${element?.required ? '*' : ""}</label>
+                        <input type="number" class="form-control" name="${id}" 
+                        value=${element?.value && element.value}
+                        min=${element?.min && element.min} 
+                        max=${element?.max && element.max}
+                        step=${element?.step && element.step}  
+                        id="${id}"  
                         placeholder="${element?.placeholder ? element.placeholder : ""}"
                         title="${element?.description ? element.description : ""}"
-                        ${element.required ? 'required' : ""} >
+                        ${element.required ? 'required' : ""}>
                     </div>`
                     break;
                 }
@@ -140,39 +171,299 @@ export default function Test() {
                     break;
                 }
                 case "hidden": {
-                    HTML += `<input type="hidden" name="${element.name}" value="${element.value}" id="${element.name}">`
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    HTML += `<input type="hidden" name="${id}" value="${element.value}" id="${id}">`
                     break;
                 }
                 case "radio-group": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} =""
+                    var ele = document.getElementsByName("${id}")
+                    for (i = 0; i < ele.length; i++) {
+                        if (ele[i].checked)
+                        {
+                            ${id} = ele[i].value;
+                            if (ele[i].value === "on" && i === ele.length - 1) { 
+                                ${id} = document.getElementById("${id}_other").value;
+                            }
+                        }
+                    } `;
+                    data += `${id}:${id}, `
                     HTML += `<div>
-                        <label class="form-label">${element.name}</label>
+                        <label data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         ${element.values.map((data) => {
-                        return `  <div class="form-check">
-                            <input class="form-check-input" type="radio" name="${element.name}" value="${data.value}"
-                                id="${data.label}"  ${data.selected && 'checked'}>
+                        return `<div class="form-check">
+                            <input class="form-check-input" type="radio" name="${id}" value="${data.value}"
+                                id="${id}"  ${data.selected && 'checked'}>
                             <label class="form-check-label" >
                                 ${data.label}
                             </label>
                             </div>`})}
-                        </div>`
+                        </div> `
                     HTML += element?.other ? `<div class="form-check">
-                            <input class="form-check-input" type="radio" name="${element.name}"
-                                id="${element.label}" >
-                            <label class="form-check-label" >
-                                ${element.label}
-                                <input type="text" id="${element.label}-other" >
+                        <input class="form-check-input" type="radio" name="${id}" id="${id}">
+                            <label class="form-check-label">
+                                 Other
+                                <input type="text" id="${id}_other" >
                             </label>
-                            </div>` : ""
+                        </div>` : ""
+                    break;
+                }
+                case "select": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} = document.getElementById("${id}").value; `;
+                    data += `${id}: ${id}, `
+                    HTML += `<div>
+                        <label data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
+                        <select
+                        id="${id}"
+                        name="${id}"
+                        class="form-select"  
+                        placeholder="${element?.placeholder ? element.placeholder : ""}" 
+                        ${element.required ? 'required' : ""}>
+                        ${element.values.map((data) => {
+                        return `<option value="${data.value}">${data.label}</option>`
+                    })
+                        }
+                        </select>
+                    </div> `
+                    break;
+                }
+                case "text":
+                case "textarea": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    code += `var ${id} = document.getElementById("${id}").value; `;
+                    data += `${id}: ${id}, `
+                    HTML += `<div>
+                        <label class="form-label">${element.label}${element?.required ? '*' : ""}</label>
+                        <input 
+                        name="${id}"
+                        type=${element.type}
+                        class="form-control"
+                        id="${id}"    
+                        value="${element?.value ? element.value : ""}"
+                        placeholder = "${element?.placeholder ? element.placeholder : ""}"
+                        title = "${element?.description ? element.description : ""}"
+                        ${element.required ? 'required' : ""} 
+                        ${element?.maxlength ? `maxLength=${element?.maxlength}` : ""}
+                    />
+                    </div>`
+                    break;
+                }
+                case "button": {
+                    let id: string = element.name;
+                    id = id.replace(/-/g, "_")
+                    HTML += `<div> 
+                        <button type="${element.subtype}" class="btn btn-primary" id="${id}" 
+                        >${element?.label}</button>
+                    </div> `
+                    break;
+                }
+            }
+        })
+        HTML = HTML.replace(/,/g, '')
+        script = `var form = document.getElementById("my-form");
+                    async function handleSubmit(event) { 
+                        event.preventDefault(); 
+                        var status = document.getElementById("my-form-status");
+                        ${code}
+                        var data = JSON.stringify({
+                            ${data}
+                        });
+                        fetch(event.target.action, {
+                            method: form.method,
+                            body: data,
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        })
+                        .then((response) => {
+                            if (response.ok) {
+                                status.innerHTML = "Thanks for your submission!";
+                                form.reset();
+                            } else {
+                                status.innerHTML = "Oops! Something went wrong";
+                            }
+                        })
+                        .catch((error) => {
+                            status.innerHTML = "Oops! Something went wrong";
+                        });
+                    }
+                form.addEventListener("submit", handleSubmit);`
+        doc = `<!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>FormHouse Form</title>
+                            <link
+                                rel="stylesheet"
+                                href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
+                            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
+                        </head>
+                        <body> 
+                        <div class="d-flex justify-content-center align-items-center mt-2">
+                            <div class="row w-50">
+                                <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                    <h5 class="card-title">FormHouse Forms</h5>
+                                    <p id="my-form-status"></p>
+                                    <form id="my-form" action="https://data.formhouse.pro/36rKEtcDFRtv0ZhwnONnFK" method="post">
+                                            ${HTML}
+                                    </form>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>                      
+                           ${from === "HTML" ? "" : `<script>
+                                    ${script}
+                                </script>`}
+                        </body>
+                    </html>`
+        console.log(doc)
+    }
+    function getReact() {
+        const formData: [] = $('.build-wrap').formBuilder('getData')
+        let HTML: string = "";
+        formData.map((element: any) => {
+            switch (element.type) {
+                case "autocomplete": {
+                    HTML += `<div>
+                        <label className="form-label" htmlFor="${element.name}">${element.label}</label>
+                        <input 
+                        onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
+                        name="${element.name}"
+                        list="datalistOptions"
+                        className="form-control mb-3"
+                        id="${element.name}"    
+                        ${(element?.placeholder) ? `placeholder="${element?.placeholder}"` : ``}  
+                        ${(element?.description) ? `title="${element?.description}"` : ``}  
+                        ${element.required ? 'required' : ""} 
+                        />
+                        <datalist id="datalistOptions">
+                            ${element.values.map((data) => { return `<option value="${data.value}">${data.label}</option>` })}
+                        </datalist>
+                    </div>`
+                    break;
+                }
+                case "checkbox-group": {
+                    let innerHTML = '';
+                    element.values.map((data, i) => {
+                        innerHTML += `
+                        <label className="form-check-label " style={{marginRight:"30px"}} htmlFor="${element.name + '-' + i}">
+                        <input name="${element.name}" className="form-check-input " 
+                        onChange={onChangeHandler}
+                        type="checkbox" value="${data.value}" id="${element.name + '-' + i}"/> 
+                            ${data.label}
+                        </label>`})
+                    HTML += `<div>
+                    <label className="form-label">${element.label}</label>
+                    <div className="input-group mb-3">
+                    <div className="form-check">
+                    ${innerHTML}        
+                    </div>              
+                  </div>
+                  </div>`
+                    break;
+                }
+                case "date": {
+                    HTML += `<div>
+                        <label  className="form-label" htmlFor="${element.name}">${element.label}</label>
+                        <input 
+                        type="date"
+                        className="form-control mb-3"
+                        onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
+                        name="${element.name}"
+                        id="${element.name}"  
+                        ${(element?.value) ? `value="${element?.value}"` : ``} 
+                        ${(element?.placeholder) ? `placeholder="${element?.placeholder}"` : ``} 
+                        ${(element?.description) ? `title="${element?.description}"` : ``} 
+                        ${element.required ? 'required' : ""} 
+                        />
+                    </div>`
+                    break;
+                }
+                case "file": {
+                    HTML += `<div className="mb-3">
+                    <label for="formFile" className="form-label" htmlFor="formFile">${element.label}</label>
+                    <input name="${element.name}" ${element.mutiple && 'multiple="multiple"'} className="form-control"
+                    ${element.required && 'required'} type="file" id="formFile" />
+                  </div>`
+                    break;
+                }
+                case "number": {
+                    HTML += `
+                    <div className="form-outline">
+                        <label className="form-label"  htmlFor="${element.name}">${element.label}</label>
+                        <input type="number" className="form-control mb-3" name="${element.name}" 
+                        onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
+                        ${(element?.value) ? `value="${element?.value}"` : ``}
+                        ${(element?.min) ? `min="${element?.min}"` : ``}
+                        ${(element?.max) ? `max="${element?.max}"` : ``}
+                        ${(element?.step) ? `step="${element?.step}"` : ``}
+                        ${(element?.placeholder) ? `placeholder="${element?.placeholder}"` : ``}
+                        ${(element?.description) ? `title="${element?.description}"` : ``}
+                        id="${element.name}"  
+                        ${element.required ? 'required' : ""} />
+                    </div>`
+                    break;
+                }
+                case "header":
+                case "paragraph": {
+                    HTML += `<${element.subtype}>${element.label}</${element.subtype}>`
+                    break;
+                }
+                case "hidden": {
+                    HTML += `<input type="hidden" name="${element.name}" value="${element.value}" id="${element.name}" />`
+                    break;
+                }
+                case "radio-group": {
+                    let innerHTML = ''
+                    element.values.map((data, i) => {
+                        innerHTML += `<div className="form-check "> 
+                    <input className="form-check-input" type="radio" name="${element.name}" value="${data.value}"
+                        onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
+                        id="${element.name + '-' + i}" 
+                              ${data.selected ? 'checked' : ''}
+                              />
+                              <label className="form-check-label" htmlFor="${element.name + '-' + i}" >    
+                            ${data.label}
+                        </label>
+                        </div>`})
+                    HTML += `<div className="mb-3">
+                        <label className="form-label" htmlFor="${element.name}">${element.label}</label>
+                        ${innerHTML}
+                        </div>`
+                    if (element?.other) {
+                        HTML += `<div className="form-check" >
+                                <input className="form-check-input" type="radio" name="${element.name}"
+                                onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
+                                    id="${element.name}" ${data.selected ? 'checked' : ''}/>
+                                <label className="form-check-label" >
+                                    ${element.label}
+                                    <input type="text" id="${element.label}-other" />
+                                </label>
+                                </div>`
+                    }
                     break;
                 }
                 case "select": {
                     HTML += `<div>
-                        <label class="form-label">${element.name}</label>
+                        <label className="form-label" htmlFor="${element.name}">${element.label}</label>
                         <select
                         name="${element.name}"
-                        class="form-select"  
-                        placeholder="${element?.placeholder ? element.placeholder : ""}"
-                        title="${element?.description ? element.description : ""}"
+                        id="${element.name}" 
+                        className="form-control mb-3"
+                        onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
+                        ${(element?.placeholder) ? `placeholder="${element?.placeholder}"` : ``}
+                        ${(element?.description) ? `title="${element?.description}"` : ``}
                         ${element.required ? 'required' : ""}>
                         ${element.values.map((data) => {
                         return `<option value="${data.value}">${data.label}</option>`
@@ -181,35 +472,110 @@ export default function Test() {
                     </div>`
                     break;
                 }
-                case "text":
-                case "textarea": {
+                case "text": {
                     HTML += `<div>
-                        <label class="form-label">${element.name}</label>
+                        <label className="form-label" htmlFor="${element.name}">${element.label}</label>
                         <input 
                         name="${element.name}"
-                        type=${element.type}
-                        class="form-control"
-                        id="${element.name}"    
-                        value="${element?.value ? element.value : ""}"
-                        placeholder="${element?.placeholder ? element.placeholder : ""}"
-                        title="${element?.description ? element.description : ""}"
+                        type="${element.type}"
+                        className="form-control mb-3"
+                        onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
+                        id="${element.name}" 
+                        ${(element?.value) ? `value="${element?.value}"` : ``}
+                        ${(element?.placeholder) ? `placeholder="${element?.placeholder}"` : ``}
+                        ${(element?.description) ? `title="${element?.description}"` : ``}
                         ${element.required ? 'required' : ""} 
                         ${element?.maxlength ? `maxLength=${element?.maxlength}` : ""}
                         />
                     </div>`
                     break;
                 }
+                case "textarea": {
+                    HTML += `<div>
+                        <label className="form-label" htmlFor="${element.name}">${element.label}</label>
+                        <textarea 
+                        name="${element.name}"
+                        type="${element.type}"
+                        className="form-control mb-3"
+                        onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
+                        id="${element.name}" 
+                        rows="${(element.rows) ? element.rows : 3}" 
+                        ${(element?.value) ? `value="${element?.value}"` : ``}
+                        ${(element?.placeholder) ? `placeholder="${element?.placeholder}"` : ``}
+                        ${(element?.description) ? `title="${element?.description}"` : ``}
+                        ${element.required ? 'required' : ""} 
+                        ${element?.maxlength ? `maxLength=${element?.maxlength}` : ""}
+                        ></textarea>
+                    </div>`
+                    break;
+                }
                 case "button": {
                     HTML += `<div>
-                        <label class="form-label">${element.name}</label>
-                        <button type="${element.subtype}" class="btn btn-primary" id="${element.name}" 
+                        <button type="${element.subtype}" className="btn btn-primary mb-3" 
+                        onClick={onSubmit}
+                        id="${element.name}" 
                         >${element?.value || element?.label}</button>
                     </div>`
                     break;
                 }
             }
         })
-        console.log(HTML)
+        const renderedForm = `
+            import {useState,useEffect} from 'react';
+            import 'bootstrap/dist/css/bootstrap.min.css';
+            import {Container,Row,Col,Card} from 'react-bootstrap'
+            const FHForm = () =>{
+                const [data,setData] = useState({});
+                const [checkbox,setCheckbox] = useState([])
+                const [name,setName] = useState("")
+                const onSubmit = (e) => {
+                    fetch(e.target.action, {
+                        method: "post",
+                        body: data,
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                      })
+                        .then((res) => {
+                          console.log(res);
+                        })
+                        .catch((err) => {
+                          console.log(err);
+                        });
+                }
+                const onChangeHandler = (e) => {
+                    if(e.target.checked){
+                      setCheckbox([...checkbox,e.target.value])
+                    }else{
+                      setCheckbox(checkbox.filter(elem=>elem != e.target.value))
+                    }
+                    setName(e.target.name)
+                  }
+                
+                  useEffect(()=>{
+                    if(name && checkbox.length > 0){
+                      setData({ ...data, [name]: checkbox })
+                    }
+                  },[checkbox,name])
+               return (
+                <>
+                    <Container>
+                        <Row className="justify-content-center">
+                            <Col md={5}>
+                                <Card className="my-4 p-4">
+                                <form id="my-form" action="https://data.formhouse.pro/36rKEtcDFRtv0ZhwnONnFK" method="post">
+                                    ${HTML}
+                                </form>
+                                </Card>
+                            </Col>
+                        </Row>
+                    </Container>
+                </>
+               )
+            }
+            export default FHForm;
+        `
+        console.log(renderedForm)
     }
     return (
         <>
@@ -228,8 +594,14 @@ export default function Test() {
                     <Button color='warning' variant="contained" onClick={handleClose}>
                         Close
                     </Button>
-                    <Button onClick={() => renderEdit()} color='primary' variant="contained">
+                    <Button onClick={() => getHTMLorAjax("HTML")} color='primary' variant="contained">
                         Get HTML
+                    </Button>
+                    <Button onClick={() => getHTMLorAjax("AJAX")} color='primary' variant="contained">
+                        Get Ajax
+                    </Button>
+                    <Button onClick={() => getReact()} color='primary' variant="contained">
+                        Get React
                     </Button>
                 </DialogActions>
             </Dialog>
