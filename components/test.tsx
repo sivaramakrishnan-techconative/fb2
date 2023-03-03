@@ -63,7 +63,7 @@ export default function Test() {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
                     code += `var ${id} = document.getElementById("${id}").value;`;
-                    data += `${id}: ${id},`
+                    data += `formData.append("${id}", ${id});;`
                     HTML += `<div>
                         <label for="Autocomplete" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         <input 
@@ -93,7 +93,7 @@ export default function Test() {
                             }
                         }                            
                     } `;
-                    data += `${id}:${id}, `
+                    data += `formData.append("${id}", ${id});;`
                     HTML += `<label data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="form-label">${element.label}${element?.required ? '*' : ""}</label>                     
                     ${element.values.map((data, index: number) => {
                         return `
@@ -116,7 +116,7 @@ export default function Test() {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
                     code += `var ${id} = document.getElementById("${id}").value;`;
-                    data += `${id}: ${id},`
+                    data += `formData.append("${id}", ${id});;`
                     HTML += `<div>
                         <label data-toggle="tooltip" title="${element?.description ? element.description : ""}" for="Date" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         <input 
@@ -137,7 +137,7 @@ export default function Test() {
                     ${id} = ${id}.files[0]
                     var ${id}_formdata = new FormData();
                     formdata.append("${id}",${id})`
-                    data += `${id}: ${id}_formdata,`
+                    data += `formData.append("${id}", ${id});;`
                     HTML += `<div data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="mb-3">
                     <label for="formFile" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                     <input id="${id}" name="${id}" ${element.mutiple && 'multiple="multiple"'} class="form-control"
@@ -149,7 +149,7 @@ export default function Test() {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
                     code += `var ${id} = document.getElementById("${id}").value;`;
-                    data += `${id}: ${id},`
+                    data += `formData.append("${id}", ${id});;`
                     HTML += `
                     <div class="form-outline">
                         <label class="form-label" for="typeNumber">${element.label}${element?.required ? '*' : ""}</label>
@@ -190,7 +190,7 @@ export default function Test() {
                             }
                         }
                     } `;
-                    data += `${id}:${id}, `
+                    data += `formData.append("${id}", ${id});;`
                     HTML += `<div>
                         <label data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         ${element.values.map((data) => {
@@ -215,7 +215,7 @@ export default function Test() {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
                     code += `var ${id} = document.getElementById("${id}").value; `;
-                    data += `${id}: ${id}, `
+                    data += `formData.append("${id}", ${id});;`
                     HTML += `<div>
                         <label data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         <select
@@ -237,7 +237,7 @@ export default function Test() {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
                     code += `var ${id} = document.getElementById("${id}").value; `;
-                    data += `${id}: ${id}, `
+                    data += `formData.append("${id}", ${id});;`
                     HTML += `<div>
                         <label class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         <input 
@@ -270,10 +270,9 @@ export default function Test() {
                     async function handleSubmit(event) { 
                         event.preventDefault(); 
                         var status = document.getElementById("my-form-status");
-                        ${code}
-                        var data = JSON.stringify({
-                            ${data}
-                        });
+                        ${code} 
+                        var formData = new FormData()
+                        ${data}
                         fetch(event.target.action, {
                             method: form.method,
                             body: data,

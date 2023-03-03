@@ -19,25 +19,36 @@
             <h5 class="card-title">FormHouse Forms</h5>
             <p id="my-form-status"></p>
             <form id="my-form" action="https://data.formhouse.pro/36rKEtcDFRtv0ZhwnONnFK" method="post">
-              <div data-toggle="tooltip" title="" class="mb-3">
-                <label for="formFile" class="form-label">File Upload</label>
-                <input name="file_1677822877180_0" undefined class="form-control" false type="file" id="formFile">
-              </div>
-              <div>
-                <label data-toggle="tooltip" title="" for="Date" class="form-label">Date Field</label>
-                <input type="date" class="form-control" name="date_1677823325720_0" id="date_1677823325720_0"
-                  title="" />
-              </div><label data-toggle="tooltip" title="" class="form-label">Checkbox Group</label>
-
+              <label data-toggle="tooltip" title="" class="form-label">Checkbox Group</label> 
               <div class="form-check  ">
-                <input name="checkbox_group_1677823380240_0_0" class="form-check-input form-checkbox-input"
-                  type="checkbox" value="option-1" id="checkbox_group_1677823380240_0_0" checked>
+                <input name="checkbox_group_1677839580182_0_0" class="form-check-input form-checkbox-input"
+                  type="checkbox" value="option-1" id="checkbox_group_1677839580182_0_0" checked>
                 <label class="form-check-label" for="flexCheckChecked">
                   Option 1
                 </label>
               </div>
+              <div class="form-outline">
+                <label class="form-label" for="typeNumber">Number</label>
+                <input type="number" class="form-control" name="number_1677839585620_0" value=undefined min=undefined
+                  max=undefined step=undefined id="number_1677839585620_0" placeholder="" title="">
+              </div>
               <div>
-                <button type="submit" class="btn btn-primary" id="button_1677822577385_0">Button</button>
+                <label data-toggle="tooltip" title="" for="Date" class="form-label">Date Field</label>
+                <input type="date" class="form-control" name="date_1677839583453_0" id="date_1677839583453_0"
+                  title="" />
+              </div>
+              <div>
+                <label for="Autocomplete" class="form-label">Autocomplete</label>
+                <input name="autocomplete_1677839576182_0" list="datalistOptions" id="autocomplete_1677839576182_0"
+                  placeholder="" title="" />
+                <datalist id="datalistOptions">
+                  <option value="option-1">Option 1</option>
+                  <option value="option-2">Option 2</option>
+                  <option value="option-3">Option 3</option>
+                </datalist>
+              </div>
+              <div>
+                <button type="submit" class="btn btn-primary" id="button_1677839578398_0">Button</button>
               </div>
             </form>
           </div>
@@ -50,26 +61,22 @@
     async function handleSubmit(event) {
       event.preventDefault();
       var status = document.getElementById("my-form-status");
-      var date_1677823325720_0 = document.getElementById("date_1677823325720_0").value; var checkbox_group_1677823380240_0 = "" 
+      var checkbox_group_1677839580182_0 = ""
       var ele = document.querySelectorAll(".form-checkbox-input");
       for (i = 0; i < ele.length; i++) {
         if (ele[i].checked) {
-          checkbox_group_1677823380240_0 += ele[i].value + ",";
+          checkbox_group_1677839580182_0 += ele[i].value + ",";
           if (ele[i].value === "on" && i === ele.length - 1) {
-            checkbox_group_1677823380240_0 = checkbox_group_1677823380240_0.replace(/on,/g, "")
-            checkbox_group_1677823380240_0 += document.getElementById("checkbox_group_1677823380240_0_other").value;
+            checkbox_group_1677839580182_0 = checkbox_group_1677839580182_0.replace(/on,/g, "")
+            checkbox_group_1677839580182_0 += document.getElementById("checkbox_group_1677839580182_0_other").value;
           }
         }
-      }
-      var data = JSON.stringify({
-        date_1677823325720_0: date_1677823325720_0, checkbox_group_1677823380240_0: checkbox_group_1677823380240_0,
-      });
+      } var number_1677839585620_0 = document.getElementById("number_1677839585620_0").value; var date_1677839583453_0 = document.getElementById("date_1677839583453_0").value; var autocomplete_1677839576182_0 = document.getElementById("autocomplete_1677839576182_0").value;
+      var formData = new FormData()
+      formData.append("checkbox_group_1677839580182_0", checkbox_group_1677839580182_0); formData.append("number_1677839585620_0", number_1677839585620_0); formData.append("date_1677839583453_0", date_1677839583453_0); formData.append("autocomplete_1677839576182_0", autocomplete_1677839576182_0);
       fetch(event.target.action, {
         method: form.method,
-        body: data,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        body: formData, 
       })
         .then((response) => {
           if (response.ok) {
