@@ -60,7 +60,10 @@ export default function Test() {
         console.log(document.querySelector(".drop").innerHTML)
         formData.map((element: any) => {
             // console.log(element)
-            let field_name = element.name.replace(/-/ig,'_')
+            let field_name = ''
+            if(element.name){
+                field_name = element.name.replace(/-/ig,'_')
+            }
             console.log(field_name)
             switch (element.type) {
                 case "autocomplete": {
@@ -124,7 +127,7 @@ export default function Test() {
                     HTML += `<div className="mb-3">
                     <label for="formFile" className="form-label" htmlFor="formFile">${element.label}</label>
                     <input name="${field_name}" ${element.mutiple && 'multiple="multiple"'}
-                    onChange={(e)=>setData({ ...data, [e.target.name]: e.target.files })}
+                    onChange={onFileChangeHandler}
                     className="form-control"
                     ${element.required? 'required':''} type="file" id="formFile" />
                   </div>`
@@ -220,7 +223,7 @@ export default function Test() {
                         ${(element?.placeholder)?`placeholder="${element?.placeholder}"`:``}
                         ${(element?.description)?`title="${element?.description}"`:``}
                         ${element.required ? 'required' : ""} 
-                        ${element?.maxlength ? `maxLength=${element?.maxlength}` : ""}
+                        ${element?.maxlength ? `maxLength="${element?.maxlength}"` : ""}
                         />
                     </div>`
                     break;
@@ -239,7 +242,7 @@ export default function Test() {
                         ${(element?.placeholder)?`placeholder="${element?.placeholder}"`:``}
                         ${(element?.description)?`title="${element?.description}"`:``}
                         ${element.required ? 'required' : ""} 
-                        ${element?.maxlength ? `maxLength=${element?.maxlength}` : ""}
+                        ${element?.maxlength ? `maxLength="${element?.maxlength}"` : ""}
                         ></textarea>
                     </div>`
                     break;
@@ -258,17 +261,27 @@ export default function Test() {
         const renderedForm = `
             import {useState,useEffect} from 'react';
             import 'bootstrap/dist/css/bootstrap.min.css';
+            import axios from 'axios';
             import {Container,Row,Col,Card} from 'react-bootstrap'
             const FHForm = () =>{
                 const [data,setData] = useState({});
                 const [checkbox,setCheckbox] = useState([])
                 const [name,setName] = useState("")
+                const [isFile,setIsFile] = useState(0)
                 const onSubmit = (e) => {
                     console.log(data);
-                    const fromData = new FormData;
+                    const formData = new FormData;
                     for (const [key, value] of Object.entries(data)) {
-                    fromData.append(key, value);
+                        formData.append(key, value);
                     }
+
+                    axios.post("https://data.formhouse.pro/1az4t8ryQIopWbvCdcMdRI", isFile === 1 ? formData : data) 
+                    .then((res) => {
+                        console.log(res);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
                 }
                 const onChangeHandler = (e) => {
                     if(e.target.checked){
@@ -277,6 +290,10 @@ export default function Test() {
                       setCheckbox(checkbox.filter(elem=>elem != e.target.value))
                     }
                     setName(e.target.name)
+                }
+                const onFileChangeHandler = (e)=>{
+                    setData({...data, [e.target.name]:e.target.files})
+                    setIsFile(1)
                 }
                 
                   useEffect(()=>{
