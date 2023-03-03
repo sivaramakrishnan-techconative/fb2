@@ -482,7 +482,7 @@ export default function Test() {
                         ${(element?.placeholder) ? `placeholder="${element?.placeholder}"` : ``}
                         ${(element?.description) ? `title="${element?.description}"` : ``}
                         ${element.required ? 'required' : ""} 
-                        ${element?.maxlength ? `maxLength=${element?.maxlength}` : ""}
+                        ${element?.maxlength ? `maxLength="${element?.maxlength}"` : ""}
                         />
                     </div>`
                     break;
@@ -501,7 +501,7 @@ export default function Test() {
                         ${(element?.placeholder) ? `placeholder="${element?.placeholder}"` : ``}
                         ${(element?.description) ? `title="${element?.description}"` : ``}
                         ${element.required ? 'required' : ""} 
-                        ${element?.maxlength ? `maxLength=${element?.maxlength}` : ""}
+                        ${element?.maxlength ? `maxLength="${element?.maxlength}"` : ""}
                         ></textarea>
                     </div>`
                     break;
@@ -525,7 +525,7 @@ export default function Test() {
                 const [data,setData] = useState({});
                 const [checkbox,setCheckbox] = useState([])
                 const [name,setName] = useState("")
-
+                const [msg, setMsg] = useState("")
                 useEffect(()=>{
                     if(name && checkbox.length > 0){
                       setData({ ...data, [name]: checkbox })
@@ -534,10 +534,24 @@ export default function Test() {
 
                 const onSubmit = (e) => {
                     console.log(data);
-                    const fromData = new FormData;
+                    const formData = new FormData;
                     for (const [key, value] of Object.entries(data)) {
-                    fromData.append(key, value);
+                        formData.append(key, value);
                     }
+                    fetch("https://data.formhouse.pro/36rKEtcDFRtv0ZhwnONnFK", {
+                        method: "post",
+                        body: formData, 
+                    })
+                    .then((response) => {
+                        if (response.ok) {
+                             setMsg("Thank you for your submission")
+                        } else {
+                            setMsg("Oops! Something went wrong")
+                        }
+                    })
+                    .catch((error) => {
+                        setMsg("Oops! Something went wrong")
+                    });
                 }
                 
                 const onChangeHandler = (e) => {
@@ -551,6 +565,7 @@ export default function Test() {
                  
                return (
                 <>
+                    <p>{msg ? msg : ""}</p>
                     <Container>
                         <Row className="justify-content-center">
                             <Col md={5}>
