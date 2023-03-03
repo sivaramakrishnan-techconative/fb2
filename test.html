@@ -18,34 +18,14 @@
           <div class="card-body">
             <h5 class="card-title">FormHouse Forms</h5>
             <p id="my-form-status"></p>
-            <form id="my-form" action="https://data.formhouse.pro/4AFN7INhKK38aXVLXtT6zS" method="post">
-              <div>
-                <label for="Autocomplete" class="form-label">Autocomplete</label>
-                <input name="autocomplete_1677826897512_0" list="datalistOptions" id="autocomplete_1677826897512_0"
-                  placeholder="" title="" />
-                <datalist id="datalistOptions">
-                  <option value="option-1">Option 1</option>
-                  <option value="option-2">Option 2</option>
-                  <option value="option-3">Option 3</option>
-                </datalist>
-              </div><label data-toggle="tooltip" title="" class="form-label">Checkbox Group</label>
-
-              <div class="form-check  ">
-                <input name="checkbox_group_1677828809736_0_0" class="form-check-input form-checkbox-input"
-                  type="checkbox" value="option-1" id="checkbox_group_1677828809736_0_0" checked>
-                <label class="form-check-label" for="flexCheckChecked">
-                  Option 1
-                </label>
-              </div>
-              <div class="form-check  ">
-                <input name="checkbox_group_1677828809736_0_1" class="form-check-input form-checkbox-input"
-                  type="checkbox" value="dt" id="checkbox_group_1677828809736_0_1" checked>
-                <label class="form-check-label" for="flexCheckChecked">
-                  rw
-                </label>
+            <form id="my-form" action="https://data.formhouse.pro/36rKEtcDFRtv0ZhwnONnFK" method="post">
+              <div data-toggle="tooltip" title="" class="mb-3">
+                <label for="formFile" class="form-label">File Upload</label>
+                <input id="file_1677841379031_0" name="file_1677841379031_0" multiple="multiple" class="form-control"
+                  false type="file" id="formFile">
               </div>
               <div>
-                <button type="submit" class="btn btn-primary" id="button_1677827392055_0">Button</button>
+                <button type="submit" class="btn btn-primary" id="button_1677841539386_0">Button</button>
               </div>
             </form>
           </div>
@@ -56,32 +36,17 @@
   <script>
     var form = document.getElementById("my-form");
     async function handleSubmit(event) {
+      debugger
       event.preventDefault();
+      var formData = new FormData()
       var status = document.getElementById("my-form-status");
-      var autocomplete_1677826897512_0 = document.getElementById("autocomplete_1677826897512_0").value; var checkbox_group_1677828809736_0 = ""
-      var ele = document.querySelectorAll(".form-checkbox-input");
-      for (i = 0; i < ele.length; i++) {
-        if (ele[i].checked) {
-          checkbox_group_1677828809736_0 += ele[i].value + ",";
-          if (ele[i].value === "on" && i === ele.length - 1) {
-            checkbox_group_1677828809736_0 = checkbox_group_1677828809736_0.replace(/on,/g, "")
-            checkbox_group_1677828809736_0 += document.getElementById("checkbox_group_1677828809736_0_other").value;
-          }
-        }
-      }
-      var data = JSON.stringify({
-        autocomplete_1677826897512_0: autocomplete_1677826897512_0, 
-        checkbox_group_1677828809736_0: checkbox_group_1677828809736_0,
-      });
-      var formdata = new FormData()
-      formdata.append("autocomplete_1677826897512_0",autocomplete_1677826897512_0)
-      formdata.append("checkbox_group_1677828809736_0",checkbox_group_1677828809736_0)
+      var file_1677841379031_0 = document.getElementById("file_1677841379031_0");
+      for (let index = 0; index < file_1677841379031_0.files.length; index++)
+        formData.append("file_1677841379031_0" + index, file_1677841379031_0.files[index]);
+
       fetch(event.target.action, {
         method: form.method,
-        body: formdata,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        body: data,
       })
         .then((response) => {
           if (response.ok) {

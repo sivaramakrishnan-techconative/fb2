@@ -134,11 +134,11 @@ export default function Test() {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
                     code += `var ${id} = document.getElementById("${id}");
-                    ${id} = ${id}.files[0]  `
-                    data += `formData.append("${id}", ${id});`
+                     for (let index = 0; index <  ${id}.files.length; index++)  
+                       ${`formData.append("${id}"+index, ${id}.files[index]);`}`
                     HTML += `<div data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="mb-3">
                     <label for="formFile" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
-                    <input id="${id}" name="${id}" ${element.mutiple && 'multiple="multiple"'} class="form-control"
+                    <input id="${id}" name="${id}" ${element?.multiple ? 'multiple="multiple"' : ""} class="form-control"
                     ${element.required && 'required'} type="file" id="formFile">
                   </div>`
                     break;
@@ -267,13 +267,13 @@ export default function Test() {
         script = `var form = document.getElementById("my-form");
                     async function handleSubmit(event) { 
                         event.preventDefault(); 
+                        var formData = new FormData()
                         var status = document.getElementById("my-form-status");
                         ${code}
-                        var formData = new FormData()
                         ${data}
                         fetch(event.target.action, {
                             method: form.method,
-                            body: data, 
+                            body: formData, 
                         })
                         .then((response) => {
                             if (response.ok) {
@@ -308,7 +308,7 @@ export default function Test() {
                                     <div class="card-body">
                                     <h5 class="card-title">FormHouse Forms</h5>
                                     <p id="my-form-status"></p>
-                                    <form id="my-form" action="https://data.formhouse.pro/36rKEtcDFRtv0ZhwnONnFK" method="post">
+                                    <form id="my-form" action="https://data.formhouse.pro/36rKEtcDFRtv0ZhwnONnFK" method="post" ${from === "HTML" ? " enctype='multipart/form-data'" : ""}>
                                             ${HTML}
                                     </form>
                                     </div>
