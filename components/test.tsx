@@ -133,9 +133,14 @@ export default function Test() {
                 case "file": {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
+                    code += `var ${id} = document.getElementById("${id}");
+                    ${id} = ${id}.files[0]
+                    var ${id}_formdata = new FormData();
+                    formdata.append("${id}",${id})`
+                    data += `${id}: ${id}_formdata,`
                     HTML += `<div data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="mb-3">
                     <label for="formFile" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
-                    <input name="${id}" ${element.mutiple && 'multiple="multiple"'} class="form-control"
+                    <input id="${id}" name="${id}" ${element.mutiple && 'multiple="multiple"'} class="form-control"
                     ${element.required && 'required'} type="file" id="formFile">
                   </div>`
                     break;
