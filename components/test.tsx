@@ -60,16 +60,18 @@ export default function Test() {
         console.log(document.querySelector(".drop").innerHTML)
         formData.map((element: any) => {
             // console.log(element)
+            let field_name = element.name.replace(/-/ig,'_')
+            console.log(field_name)
             switch (element.type) {
                 case "autocomplete": {
                     HTML += `<div>
-                        <label className="form-label" htmlFor="${element.name}">${element.label}</label>
+                        <label className="form-label" htmlFor="${field_name}">${element.label}</label>
                         <input 
                         onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
-                        name="${element.name}"
+                        name="${field_name}"
                         list="datalistOptions"
                         className="form-control mb-3"
-                        id="${element.name}"    
+                        id="${field_name}"    
                         ${(element?.placeholder)?`placeholder="${element?.placeholder}"`:``}  
                         ${(element?.description)?`title="${element?.description}"`:``}  
                         ${element.required ? 'required' : ""} 
@@ -84,10 +86,10 @@ export default function Test() {
                     let innerHTML = '';
                     element.values.map((data,i) => {
                         innerHTML += `
-                        <label className="form-check-label " style={{marginRight:"30px"}} htmlFor="${element.name+'-'+i}">
-                        <input name="${element.name}" className="form-check-input " 
+                        <label className="form-check-label " style={{marginRight:"30px"}} htmlFor="${field_name+'-'+i}">
+                        <input name="${field_name}" className="form-check-input " 
                         onChange={onChangeHandler}
-                        type="checkbox" value="${data.value}" id="${element.name+'-'+i}"/>
+                        type="checkbox" value="${data.value}" id="${field_name+'-'+i}"/>
                         
                             ${data.label}
                         </label>`})
@@ -103,13 +105,13 @@ export default function Test() {
                 }
                 case "date": {
                     HTML += `<div>
-                        <label  className="form-label" htmlFor="${element.name}">${element.label}</label>
+                        <label  className="form-label" htmlFor="${field_name}">${element.label}</label>
                         <input 
                         type="date"
                         className="form-control mb-3"
                         onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
-                        name="${element.name}"
-                        id="${element.name}"  
+                        name="${field_name}"
+                        id="${field_name}"  
                         ${(element?.value)?`value="${element?.value}"`:``} 
                         ${(element?.placeholder)?`placeholder="${element?.placeholder}"`:``} 
                         ${(element?.description)?`title="${element?.description}"`:``} 
@@ -121,16 +123,18 @@ export default function Test() {
                 case "file": {
                     HTML += `<div className="mb-3">
                     <label for="formFile" className="form-label" htmlFor="formFile">${element.label}</label>
-                    <input name="${element.name}" ${element.mutiple && 'multiple="multiple"'} className="form-control"
-                    ${element.required && 'required'} type="file" id="formFile" />
+                    <input name="${field_name}" ${element.mutiple && 'multiple="multiple"'}
+                    onChange={(e)=>setData({ ...data, [e.target.name]: e.target.files })}
+                    className="form-control"
+                    ${element.required? 'required':''} type="file" id="formFile" />
                   </div>`
                     break;
                 }
                 case "number": {
                     HTML += `
                     <div className="form-outline">
-                        <label className="form-label"  htmlFor="${element.name}">${element.label}</label>
-                        <input type="number" className="form-control mb-3" name="${element.name}" 
+                        <label className="form-label"  htmlFor="${field_name}">${element.label}</label>
+                        <input type="number" className="form-control mb-3" name="${field_name}" 
                         onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
                         ${(element?.value)?`value="${element?.value}"`:``}
                         ${(element?.min)?`min="${element?.min}"`:``}
@@ -138,7 +142,7 @@ export default function Test() {
                         ${(element?.step)?`step="${element?.step}"`:``}
                         ${(element?.placeholder)?`placeholder="${element?.placeholder}"`:``}
                         ${(element?.description)?`title="${element?.description}"`:``}
-                        id="${element.name}"  
+                        id="${field_name}"  
                         ${element.required ? 'required' : ""} />
                     </div>`
                     break;
@@ -149,7 +153,7 @@ export default function Test() {
                     break;
                 }
                 case "hidden": {
-                    HTML += `<input type="hidden" name="${element.name}" value="${element.value}" id="${element.name}" />`
+                    HTML += `<input type="hidden" name="${field_name}" value="${element.value}" id="${field_name}" />`
                     break;
                 }
                 case "radio-group": {
@@ -157,25 +161,25 @@ export default function Test() {
                     element.values.map((data,i) => {
                     innerHTML += `<div className="form-check ">
                     
-                    <input className="form-check-input" type="radio" name="${element.name}" value="${data.value}"
+                    <input className="form-check-input" type="radio" name="${field_name}" value="${data.value}"
                         onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
-                        id="${element.name+'-'+i}" 
+                        id="${field_name+'-'+i}" 
                               ${data.selected?'checked':''}
                               />
-                              <label className="form-check-label" htmlFor="${element.name+'-'+i}" >    
+                              <label className="form-check-label" htmlFor="${field_name+'-'+i}" >    
                             ${data.label}
                         </label>
                         </div>`})
 
                     HTML += `<div className="mb-3">
-                        <label className="form-label" htmlFor="${element.name}">${element.label}</label>
+                        <label className="form-label" htmlFor="${field_name}">${element.label}</label>
                         ${innerHTML}
                         </div>`
                     if(element?.other ){
                         HTML +=  `<div className="form-check" >
-                                <input className="form-check-input" type="radio" name="${element.name}"
+                                <input className="form-check-input" type="radio" name="${field_name}"
                                 onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
-                                    id="${element.name}" ${data.selected?'checked':''}/>
+                                    id="${field_name}" ${data.selected?'checked':''}/>
                                 <label className="form-check-label" >
                                     ${element.label}
                                     <input type="text" id="${element.label}-other" />
@@ -186,10 +190,10 @@ export default function Test() {
                 }
                 case "select": {
                     HTML += `<div>
-                        <label className="form-label" htmlFor="${element.name}">${element.label}</label>
+                        <label className="form-label" htmlFor="${field_name}">${element.label}</label>
                         <select
-                        name="${element.name}"
-                        id="${element.name}"
+                        name="${field_name}"
+                        id="${field_name}"
 
                         className="form-control mb-3"
                         onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
@@ -205,13 +209,13 @@ export default function Test() {
                 }
                 case "text": {
                     HTML += `<div>
-                        <label className="form-label" htmlFor="${element.name}">${element.label}</label>
+                        <label className="form-label" htmlFor="${field_name}">${element.label}</label>
                         <input 
-                        name="${element.name}"
+                        name="${field_name}"
                         type="${element.type}"
                         className="form-control mb-3"
                         onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
-                        id="${element.name}" 
+                        id="${field_name}" 
                         ${(element?.value)?`value="${element?.value}"`:``}
                         ${(element?.placeholder)?`placeholder="${element?.placeholder}"`:``}
                         ${(element?.description)?`title="${element?.description}"`:``}
@@ -223,13 +227,13 @@ export default function Test() {
                 }
                 case "textarea": {
                     HTML += `<div>
-                        <label className="form-label" htmlFor="${element.name}">${element.label}</label>
+                        <label className="form-label" htmlFor="${field_name}">${element.label}</label>
                         <textarea 
-                        name="${element.name}"
+                        name="${field_name}"
                         type="${element.type}"
                         className="form-control mb-3"
                         onChange={(e)=>setData({...data,[e.target.name]:e.target.value})}
-                        id="${element.name}" 
+                        id="${field_name}" 
                         rows="${(element.rows)?element.rows:3}" 
                         ${(element?.value)?`value="${element?.value}"`:``}
                         ${(element?.placeholder)?`placeholder="${element?.placeholder}"`:``}
@@ -244,7 +248,7 @@ export default function Test() {
                     HTML += `<div>
                         <button type="${element.subtype}" className="btn btn-primary mb-3" 
                         onClick={onSubmit}
-                        id="${element.name}" 
+                        id="${field_name}" 
                         >${element?.value || element?.label}</button>
                     </div>`
                     break;
@@ -261,6 +265,10 @@ export default function Test() {
                 const [name,setName] = useState("")
                 const onSubmit = (e) => {
                     console.log(data);
+                    const fromData = new FormData;
+                    for (const [key, value] of Object.entries(data)) {
+                    fromData.append(key, value);
+                    }
                 }
                 const onChangeHandler = (e) => {
                     if(e.target.checked){
@@ -269,7 +277,7 @@ export default function Test() {
                       setCheckbox(checkbox.filter(elem=>elem != e.target.value))
                     }
                     setName(e.target.name)
-                  }
+                }
                 
                   useEffect(()=>{
                     if(name && checkbox.length > 0){
