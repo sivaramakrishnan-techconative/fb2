@@ -82,8 +82,7 @@ export default function Test() {
                 case "checkbox-group": {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
-                    code += `var ${id} =""
-                    debugger
+                    code += `var ${id} ="" 
                     var ele = document.querySelectorAll(".form-checkbox-input");
                     for (i = 0; i < ele.length; i++) {
                         if (ele[i].checked){
@@ -119,7 +118,7 @@ export default function Test() {
                     code += `var ${id} = document.getElementById("${id}").value;`;
                     data += `${id}: ${id},`
                     HTML += `<div>
-                        <label data-toggle="tooltip" title="${element?.description ? element.description : ""}" for="Date" class="form-label">${id}${element?.required ? '*' : ""}</label>
+                        <label data-toggle="tooltip" title="${element?.description ? element.description : ""}" for="Date" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         <input 
                         type="date"
                         class="form-control"
