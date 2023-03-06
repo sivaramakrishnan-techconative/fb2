@@ -20,9 +20,6 @@ export default function Test() {
     useEffect(() => {
         const fbOptions = {
             persistDefaultFields: true,
-            disabledSubtypes: {
-                text: ['password'],
-            },
             onSave: function (evt, formData) {
                 toggleEdit(formData)
             },
@@ -30,11 +27,10 @@ export default function Test() {
                 enable: true,
             },
             sortableControls: true,
-            disabledFieldButtons: {
-                text: ['copy'],
-            },
             controlPosition: 'right', // left|right, 
             scrollToFieldOnAdd: false,
+            disabledAttrs: ["access", "name"],
+            disableFields: ['hidden']
         }
         if (firstTime) {
             $(($: any) => { $(".build-wrap").formBuilder(fbOptions) });
@@ -58,6 +54,7 @@ export default function Test() {
         const formData: [] = $('.build-wrap').formBuilder('getData')
         let HTML: string = "", script: string = "", doc: string = "", data: string = "", code: string = "";
         formData.map((element: any) => {
+            console.log(element)
             switch (element.type) {
                 case "autocomplete": {
                     let id: string = element.name;
@@ -167,13 +164,7 @@ export default function Test() {
                 case "paragraph": {
                     HTML += `<${element.subtype}>${element.label}</${element.subtype}>`
                     break;
-                }
-                case "hidden": {
-                    let id: string = element.name;
-                    id = id.replace(/-/g, "_")
-                    HTML += `<input type="hidden" name="${id}" value="${element.value}" id="${id}">`
-                    break;
-                }
+                } 
                 case "radio-group": {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
@@ -416,11 +407,7 @@ export default function Test() {
                 case "paragraph": {
                     HTML += `<${element.subtype}>${element.label}</${element.subtype}>`
                     break;
-                }
-                case "hidden": {
-                    HTML += `<input type="hidden" name="${field_name}" value="${element.value}" id="${field_name}" />`
-                    break;
-                }
+                } 
                 case "radio-group": {
                     let innerHTML = ''
                     element.values.map((data, i) => {
@@ -517,6 +504,7 @@ export default function Test() {
                 }
             }
         })
+
         const renderedForm = `
             import {useState,useEffect} from 'react';
             import 'bootstrap/dist/css/bootstrap.min.css';
@@ -530,8 +518,7 @@ export default function Test() {
                     if(name && checkbox.length > 0){
                       setData({ ...data, [name]: checkbox })
                     }
-                  },[checkbox,name])
-
+                  },[checkbox,name]) 
                 const onSubmit = (e) => {
                     console.log(data);
                     const formData = new FormData;
