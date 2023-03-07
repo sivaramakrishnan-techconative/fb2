@@ -6,7 +6,7 @@ const FHForm = () => {
   const [checkbox, setCheckbox] = useState([]);
   const [name, setName] = useState("");
   const [msg, setMsg] = useState("");
-  var hasFiles = false;
+  const [hasFiles, sethasFiles] = useState(false);
   var jsonData = {},
     finalData;
   useEffect(() => {
@@ -14,8 +14,7 @@ const FHForm = () => {
       setData({ ...data, [name]: checkbox });
     }
   }, [checkbox, name]);
-  const onSubmit = (e) => {
-    console.log(data);
+  const onSubmit = (e) => { 
     const formData = new FormData();
     for (const [key, value] of Object.entries(data)) {
       if (hasFiles) {
@@ -29,6 +28,7 @@ const FHForm = () => {
     } else {
       finalData = JSON.stringify(jsonData);
     }
+    debugger;
     fetch("https://data.formhouse.pro/36rKEtcDFRtv0ZhwnONnFK", {
       method: "post",
       body: finalData,
@@ -44,7 +44,10 @@ const FHForm = () => {
         setMsg("Oops! Something went wrong");
       });
   };
-
+  function handleFile(e) {
+    setData({ ...data, [e.target.name]: e.target.files });
+    sethasFiles(true);
+  }
   const onChangeHandler = (e) => {
     if (e.target.checked) {
       setCheckbox([...checkbox, e.target.value]);
@@ -61,11 +64,10 @@ const FHForm = () => {
           <Col md={5}>
             <Card className="my-4 p-4">
               <p>{msg ? msg : ""}</p>
-
               <div>
                 <label
                   className="form-label"
-                  htmlFor="autocomplete_1678178539285_0"
+                  htmlFor="autocomplete_1678180013794_0"
                 >
                   Autocomplete
                 </label>
@@ -73,10 +75,10 @@ const FHForm = () => {
                   onChange={(e) =>
                     setData({ ...data, [e.target.name]: e.target.value })
                   }
-                  name="autocomplete_1678178539285_0"
+                  name="autocomplete_1678180013794_0"
                   list="datalistOptions"
                   className="form-control mb-3"
-                  id="autocomplete_1678178539285_0"
+                  id="autocomplete_1678180013794_0"
                 />
                 <datalist id="datalistOptions">
                   <option value="option-1">Option 1</option>,
@@ -84,110 +86,25 @@ const FHForm = () => {
                   <option value="option-3">Option 3</option>
                 </datalist>
               </div>
-              <div>
-                <label className="form-label">Checkbox Group</label>
-                <div className="input-group mb-3">
-                  <div className="form-check">
-                    <label
-                      className="form-check-label "
-                      style={{ marginRight: "30px" }}
-                      htmlFor="checkbox_group_1678178540059_0-0"
-                    >
-                      <input
-                        name="checkbox_group_1678178540059_0"
-                        className="form-check-input "
-                        onChange={onChangeHandler}
-                        type="checkbox"
-                        value="option-1"
-                        id="checkbox_group_1678178540059_0-0"
-                      />
-                      Option 1
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label className="form-label" htmlFor="date_1678178540887_0">
-                  Date Field
+              <div className="mb-3">
+                <label for="formFile" className="form-label" htmlFor="formFile">
+                  File Upload
                 </label>
                 <input
-                  type="date"
-                  className="form-control mb-3"
-                  onChange={(e) =>
-                    setData({ ...data, [e.target.name]: e.target.value })
-                  }
-                  name="date_1678178540887_0"
-                  id="date_1678178540887_0"
+                  name="file_1678180014736_0"
+                  undefined
+                  onChange={(e) => handleFile(e)}
+                  className="form-control"
+                  type="file"
+                  id="formFile"
                 />
-              </div>
-              <div className="mb-3">
-                <label
-                  className="form-label"
-                  htmlFor="radio_group_1678178543523_0"
-                >
-                  Radio Group
-                </label>
-                <div className="form-check ">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="radio_group_1678178543523_0"
-                    value="option-1"
-                    onChange={(e) =>
-                      setData({ ...data, [e.target.name]: e.target.value })
-                    }
-                    id="radio_group_1678178543523_0-0"
-                  />
-                  <label
-                    className="form-check-label"
-                    htmlFor="radio_group_1678178543523_0-0"
-                  >
-                    Option 1
-                  </label>
-                </div>
-                <div className="form-check ">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="radio_group_1678178543523_0"
-                    value="option-2"
-                    onChange={(e) =>
-                      setData({ ...data, [e.target.name]: e.target.value })
-                    }
-                    id="radio_group_1678178543523_0-1"
-                  />
-                  <label
-                    className="form-check-label"
-                    htmlFor="radio_group_1678178543523_0-1"
-                  >
-                    Option 2
-                  </label>
-                </div>
-                <div className="form-check ">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="radio_group_1678178543523_0"
-                    value="option-3"
-                    onChange={(e) =>
-                      setData({ ...data, [e.target.name]: e.target.value })
-                    }
-                    id="radio_group_1678178543523_0-2"
-                  />
-                  <label
-                    className="form-check-label"
-                    htmlFor="radio_group_1678178543523_0-2"
-                  >
-                    Option 3
-                  </label>
-                </div>
               </div>
               <div>
                 <button
                   type="button"
                   className="btn btn-primary mb-3"
                   onClick={onSubmit}
-                  id="button_1678178544850_0"
+                  id="button_1678180015855_0"
                 >
                   Button
                 </button>

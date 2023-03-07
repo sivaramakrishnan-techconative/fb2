@@ -392,7 +392,7 @@ export default function Test() {
                     HTML += `<div className="mb-3">
                     <label for="formFile" className="form-label" htmlFor="formFile">${element.label}</label>
                     <input name="${field_name}" ${element.mutiple && 'multiple="multiple"'}
-                    onChange={(e)=>setData({ ...data, [e.target.name]: e.target.files });hasFiles = true;}
+                    onChange={(e) => handleFile(e)}
                     className="form-control"
                     ${element.required ? 'required' : ''} type="file" id="formFile" />
                   </div>`
@@ -526,13 +526,19 @@ export default function Test() {
                 const [checkbox,setCheckbox] = useState([])
                 const [name,setName] = useState("")
                 const [msg, setMsg] = useState("")
-                var hasFiles = false 
+                const [hasFiles, sethasFiles] = useState(false);
                 var jsonData = {}, finalData;
                 useEffect(()=>{
                     if(name && checkbox.length > 0){
                       setData({ ...data, [name]: checkbox })
                     }
                   },[checkbox,name]) 
+                 
+                  function handleFile(e) {
+                    setData({ ...data, [e.target.name]: e.target.files });
+                    sethasFiles(true);
+                  }
+                  
                 const onSubmit = (e) => {
                     console.log(data);
                     const formData = new FormData;
