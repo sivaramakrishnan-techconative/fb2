@@ -19,13 +19,36 @@
             <h5 class="card-title">FormHouse Forms</h5>
             <p id="my-form-status"></p>
             <form id="my-form" action="https://data.formhouse.pro/36rKEtcDFRtv0ZhwnONnFK" method="post">
-              <div data-toggle="tooltip" title="" class="mb-3">
-                <label for="formFile" class="form-label">File Upload</label>
-                <input id="file_1677841379031_0" name="file_1677841379031_0" multiple="multiple" class="form-control"
-                  false type="file" id="formFile">
+              <div>
+                <label for="Autocomplete" class="form-label">Autocomplete</label>
+                <input name="autocomplete_1678176650135_0" list="datalistOptions" id="autocomplete_1678176650135_0"
+                  class="form-control" placeholder="" title="" />
+                <datalist id="datalistOptions">
+                  <option value="option-1">Option 1</option>
+                  <option value="option-2">Option 2</option>
+                  <option value="option-3">Option 3</option>
+                </datalist>
+              </div><label data-toggle="tooltip" title="" class="form-label">Checkbox Group</label>
+
+              <div class="form-check  ">
+                <input name="checkbox_group_1678176651606_0_0" class="form-check-input form-checkbox-input"
+                  type="checkbox" value="option-1" id="checkbox_group_1678176651606_0_0" checked>
+                <label class="form-check-label" for="flexCheckChecked">
+                  Option 1
+                </label>
               </div>
               <div>
-                <button type="submit" class="btn btn-primary" id="button_1677841539386_0">Button</button>
+                <label data-toggle="tooltip" title="" for="Date" class="form-label">Date Field</label>
+                <input type="date" class="form-control" name="date_1678176654030_0" id="date_1678176654030_0"
+                  title="" />
+              </div> 
+              <div class="form-outline">
+                <label class="form-label" for="typeNumber">Number</label>
+                <input type="number" class="form-control" name="number_1678176655947_0" value=undefined min=undefined
+                  max=undefined step=undefined id="number_1678176655947_0" placeholder="" title="">
+              </div>
+              <div>
+                <button type="submit" class="btn btn-primary mt-2" id="button_1678176659732_0">Button</button>
               </div>
             </form>
           </div>
@@ -36,17 +59,44 @@
   <script>
     var form = document.getElementById("my-form");
     async function handleSubmit(event) {
-      debugger
       event.preventDefault();
+      debugger
       var formData = new FormData()
       var status = document.getElementById("my-form-status");
-      var file_1677841379031_0 = document.getElementById("file_1677841379031_0");
-      for (let index = 0; index < file_1677841379031_0.files.length; index++)
-        formData.append("file_1677841379031_0" + index, file_1677841379031_0.files[index]);
-
+      var hasFiles = false
+      var data = [];
+      var jsonData = {}, finalData;
+      var autocomplete_1678176650135_0 = document.getElementById("autocomplete_1678176650135_0").value;
+      data.push({ "autocomplete": autocomplete_1678176650135_0 }); var checkbox_group_1678176651606_0 = ""
+      var ele = document.querySelectorAll(".form-checkbox-input");
+      for (i = 0; i < ele.length; i++) {
+        if (ele[i].checked) {
+          checkbox_group_1678176651606_0 += ele[i].value + ",";
+          if (ele[i].value === "on" && i === ele.length - 1) {
+            checkbox_group_1678176651606_0 = checkbox_group_1678176651606_0.replace(/on,/g, "")
+            checkbox_group_1678176651606_0 += document.getElementById("checkbox_group_1678176651606_0_other").value;
+          }
+        }
+      }
+      data.push({ "checkbox": checkbox_group_1678176651606_0 }); var date_1678176654030_0 = document.getElementById("date_1678176654030_0").value;
+      data.push({ "date": date_1678176654030_0 }); var file_1678177625858_0 = document.getElementById("file_1678177625858_0");  
+      var number_1678176655947_0 = document.getElementById("number_1678176655947_0").value; data.push({ "number": number_1678176655947_0 });
+      data.map((d) => {
+        if (hasFiles) {
+          formData.append(Object.keys(d)[0], Object.values(d)[0])
+        } else {
+          jsonData[Object.keys(d)[0]] = Object.values(d)[0]
+        }
+      })
+      if (hasFiles) {
+        finalData = formData
+      } else {
+        finalData = JSON.stringify(jsonData)
+      }
+      console.log(data)
       fetch(event.target.action, {
         method: form.method,
-        body: data,
+        body: finalData,
       })
         .then((response) => {
           if (response.ok) {

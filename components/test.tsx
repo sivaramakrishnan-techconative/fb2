@@ -54,19 +54,19 @@ export default function Test() {
         const formData: [] = $('.build-wrap').formBuilder('getData')
         let HTML: string = "", script: string = "", doc: string = "", data: string = "", code: string = "";
         formData.map((element: any) => {
-            console.log(element)
             switch (element.type) {
                 case "autocomplete": {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
-                    code += `var ${id} = document.getElementById("${id}").value;`;
-                    data += `formData.append("${id}", ${id});`
+                    code += `var ${id} = document.getElementById("${id}").value;
+                    data.push({"autocomplete":${id}});`;
                     HTML += `<div>
                         <label for="Autocomplete" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         <input 
                         name="${id}"
                         list="datalistOptions"
-                        id="${id}"     
+                        id="${id}"    
+                        class="form-control" 
                         placeholder="${element?.placeholder ? element.placeholder : ""}"
                         title="${element?.description ? element.description : ""}"
                         />
@@ -89,8 +89,8 @@ export default function Test() {
                                 ${id} += document.getElementById("${id}_other").value;
                             }
                         }                            
-                    } `;
-                    data += `formData.append("${id}", ${id});`
+                    } 
+                    data.push({"checkbox":${id}});`;
                     HTML += `<label data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="form-label">${element.label}${element?.required ? '*' : ""}</label>                     
                     ${element.values.map((data, index: number) => {
                         return `
@@ -112,8 +112,8 @@ export default function Test() {
                 case "date": {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
-                    code += `var ${id} = document.getElementById("${id}").value;`;
-                    data += `formData.append("${id}", ${id});`
+                    code += `var ${id} = document.getElementById("${id}").value; 
+                    data.push({"date":${id}});`;
                     HTML += `<div>
                         <label data-toggle="tooltip" title="${element?.description ? element.description : ""}" for="Date" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         <input 
@@ -131,8 +131,9 @@ export default function Test() {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
                     code += `var ${id} = document.getElementById("${id}");
-                     for (let index = 0; index <  ${id}.files.length; index++)  
-                       ${`formData.append("${id}"+index, ${id}.files[index]);`}`
+                    hasFiles = true;
+                    for (let index = 0; index <  ${id}.files.length; index++)  
+                       ${`data.push({"files": ${id}.files[index]});`}`
                     HTML += `<div data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="mb-3">
                     <label for="formFile" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                     <input id="${id}" name="${id}" ${element?.multiple ? 'multiple="multiple"' : ""} class="form-control"
@@ -143,8 +144,7 @@ export default function Test() {
                 case "number": {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
-                    code += `var ${id} = document.getElementById("${id}").value;`;
-                    data += `formData.append("${id}", ${id});`
+                    code += `var ${id} = document.getElementById("${id}").value;  data.push({"number":${id}});`;
                     HTML += `
                     <div class="form-outline">
                         <label class="form-label" for="typeNumber">${element.label}${element?.required ? '*' : ""}</label>
@@ -164,7 +164,7 @@ export default function Test() {
                 case "paragraph": {
                     HTML += `<${element.subtype}>${element.label}</${element.subtype}>`
                     break;
-                } 
+                }
                 case "radio-group": {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
@@ -178,8 +178,7 @@ export default function Test() {
                                 ${id} = document.getElementById("${id}_other").value;
                             }
                         }
-                    } `;
-                    data += `formData.append("${id}", ${id});`
+                    };   data.push(${id})`;
                     HTML += `<div>
                         <label data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         ${element.values.map((data) => {
@@ -203,8 +202,7 @@ export default function Test() {
                 case "select": {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
-                    code += `var ${id} = document.getElementById("${id}").value; `;
-                    data += `formData.append("${id}", ${id});`
+                    code += `var ${id} = document.getElementById("${id}").value;  data.push(${id})`;
                     HTML += `<div>
                         <label data-toggle="tooltip" title="${element?.description ? element.description : ""}" class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         <select
@@ -225,8 +223,7 @@ export default function Test() {
                 case "textarea": {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
-                    code += `var ${id} = document.getElementById("${id}").value; `;
-                    data += `formData.append("${id}", ${id});`
+                    code += `var ${id} = document.getElementById("${id}").value;  data.push(${id})`;
                     HTML += `<div>
                         <label class="form-label">${element.label}${element?.required ? '*' : ""}</label>
                         <input 
@@ -247,7 +244,7 @@ export default function Test() {
                     let id: string = element.name;
                     id = id.replace(/-/g, "_")
                     HTML += `<div> 
-                        <button type="${element.subtype}" class="btn btn-primary" id="${id}" 
+                        <button type="${element.subtype}" class="btn btn-primary mt-2" id="${id}" 
                         >${element?.label}</button>
                     </div> `
                     break;
@@ -260,11 +257,26 @@ export default function Test() {
                         event.preventDefault(); 
                         var formData = new FormData()
                         var status = document.getElementById("my-form-status");
-                        ${code}
-                        ${data}
+                        var hasFiles = false
+                        var data = [];
+                        var jsonData = {}, finalData;
+                        ${code} 
+                        data.map((d) => {
+                            if (hasFiles) {
+                              formData.append(Object.keys(d)[0], Object.values(d)[0])
+                            } else {
+                              jsonData[Object.keys(d)[0]] = Object.values(d)[0]
+                            }
+                          })
+                          if (hasFiles) {
+                            finalData = formData
+                          } else {
+                            finalData = JSON.stringify(jsonData)
+                          }
+                        console.log(data)
                         fetch(event.target.action, {
                             method: form.method,
-                            body: formData, 
+                            body: finalData, 
                         })
                         .then((response) => {
                             if (response.ok) {
@@ -380,7 +392,7 @@ export default function Test() {
                     HTML += `<div className="mb-3">
                     <label for="formFile" className="form-label" htmlFor="formFile">${element.label}</label>
                     <input name="${field_name}" ${element.mutiple && 'multiple="multiple"'}
-                    onChange={(e)=>setData({ ...data, [e.target.name]: e.target.files })}
+                    onChange={(e)=>setData({ ...data, [e.target.name]: e.target.files });hasFiles = true;}
                     className="form-control"
                     ${element.required ? 'required' : ''} type="file" id="formFile" />
                   </div>`
@@ -407,7 +419,7 @@ export default function Test() {
                 case "paragraph": {
                     HTML += `<${element.subtype}>${element.label}</${element.subtype}>`
                     break;
-                } 
+                }
                 case "radio-group": {
                     let innerHTML = ''
                     element.values.map((data, i) => {
@@ -514,6 +526,8 @@ export default function Test() {
                 const [checkbox,setCheckbox] = useState([])
                 const [name,setName] = useState("")
                 const [msg, setMsg] = useState("")
+                var hasFiles = false 
+                var jsonData = {}, finalData;
                 useEffect(()=>{
                     if(name && checkbox.length > 0){
                       setData({ ...data, [name]: checkbox })
@@ -523,11 +537,20 @@ export default function Test() {
                     console.log(data);
                     const formData = new FormData;
                     for (const [key, value] of Object.entries(data)) {
-                        formData.append(key, value);
+                        if (hasFiles) {
+                            formData.append(key, value)
+                          } else {
+                            jsonData[key] = value
+                          }
                     }
+                    if (hasFiles) {
+                        finalData = formData
+                      } else {
+                        finalData = JSON.stringify(jsonData)
+                      }
                     fetch("https://data.formhouse.pro/36rKEtcDFRtv0ZhwnONnFK", {
                         method: "post",
-                        body: formData, 
+                        body: finalData, 
                     })
                     .then((response) => {
                         if (response.ok) {
@@ -552,11 +575,11 @@ export default function Test() {
                  
                return (
                 <>
-                    <p>{msg ? msg : ""}</p>
                     <Container>
                         <Row className="justify-content-center">
                             <Col md={5}>
                                 <Card className="my-4 p-4">
+                                <p>{msg ? msg : ""}</p>
                                     ${HTML}
                                 </Card>
                             </Col>
